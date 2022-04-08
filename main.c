@@ -5,18 +5,16 @@
 #include "server.h"
 #include "client.h"
 
-#define SERVER(V) server_v##V()
-#define CLIENT(V) client_v##V()
 
 
 void v1(){
     pid_t proc = fork();
     if(proc > 0){
         // father
-        CLIENT(1);
+        client_v1(proc);
     } else if(proc == 0){
         // son
-        SERVER(1);
+        server_v1(1)();
     } else { // proc < 0
         // error
         perror("fork");
@@ -26,6 +24,7 @@ void v1(){
 
 
 int main() {
+    srand(time(NULL));
     printf("Haiku project\n");
     int version = 1;
     printf("Server version %d\n", version);
