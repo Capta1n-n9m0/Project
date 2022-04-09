@@ -3,4 +3,4 @@ project(Project C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(Project main.c server.c server.h client.c client.h)
+add_executable(Project main.c server.c server.h client.c client.h haiku.c haiku.h)
