@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <assert.h>
 #include "server.h"
 #include "client.h"
 #include "haiku.h"
@@ -9,12 +10,13 @@
 
 void v1(){
     pid_t proc = fork();
+    printf("fork res: %d\n", proc);
     if(proc > 0){
         // father
         client_v1(proc);
     } else if(proc == 0){
         // son
-        server_v1(1);
+        server_v1();
     } else { // proc < 0
         // error
         perror("fork");
@@ -36,20 +38,23 @@ void test(){
     }
 }
 
-int main() {
+int main(int argc, char **argv) {
     srand(time(NULL));
-    test();
-//    printf("Haiku project\n");
-//    int version = 1;
-//    printf("Server version %d\n", version);
-//    printf("Client version %d\n", version);
-//    switch (version) {
-//        case 1:
-//            v1();
-//            break;
-////        case 2:
-////            break;
-//    }
-
+    printf("Haiku project\n");
+    assert(argc > 1);
+    // test();
+    printf("Server version %s\n", argv[1]);
+    printf("Client version %s\n", argv[1]);
+    switch (argv[1][0]) {
+        case '1':
+            v1();
+            break;
+        case '2':
+            puts("Not implemented.");
+            break;
+        default:
+            puts("Not implemented.");
+    }
+    getchar();
     return 0;
 }
