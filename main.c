@@ -24,6 +24,24 @@ void v1(){
     }
 }
 
+void *server_v2_wrapper(void *arg){
+    server_v2();
+    pthread_exit(NULL);
+}
+
+void *client_v2_wrapper(void *arg){
+    client_v2();
+    pthread_exit(NULL);
+}
+
+void v2(){
+    pthread_t s,c;
+    if(pthread_create(&s, NULL, server_v2_wrapper, NULL) != 0) perror("pthread_create");
+    if(pthread_create(&c, NULL, client_v2_wrapper, NULL) != 0) perror("pthread_create");
+    pthread_join(s,NULL);
+    pthread_join(c, NULL);
+}
+
 void test(){
     book j = read_book(japanese);
     book w = read_book(western);
@@ -50,7 +68,7 @@ int main(int argc, char **argv) {
             v1();
             break;
         case '2':
-            puts("Not implemented.");
+            v2();
             break;
         default:
             puts("Not implemented.");

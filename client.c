@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "client.h"
+#include "haiku.h"
+#include "queue.h"
 
 void client_v1(pid_t t){
     sleep(1);
@@ -22,4 +24,22 @@ void client_v1(pid_t t){
     }
 }
 
-
+void client_v2(){
+    sleep(1);
+    printf("Hello from client\n");
+    haiku h;
+    category c;
+    for(int i = 0; i < 6; i++){
+        printf("#%d. Reading book category ", i);
+        if(i%2) {
+            c = western;
+            puts("western.");
+        }
+        else {
+            c = japanese;
+            puts("japanese.");
+        }
+        if(read_haiku(c, &h) == -1) exit(2);
+        print_haiku(h);
+    }
+}

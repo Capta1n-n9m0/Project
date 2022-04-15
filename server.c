@@ -1,8 +1,10 @@
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include "server.h"
 #include "haiku.h"
+#include "queue.h"
 
 book w, j;
 
@@ -34,5 +36,24 @@ void server_v1(){
         pause();
     }
 }
-
-
+// server should be writer, but client is reader
+void server_v2(){
+    printf("Hello from server\n");
+    haiku h;
+    category c;
+    init_books();
+    for(int i = 0; i < 6; i++){
+        printf("#%d. Sending book category ", i);
+        if(i%2) {
+            c = japanese;
+            h = select_random(j);
+            puts("japanese.");
+        }
+        else {
+            c = western;
+            h = select_random(w);
+            puts("western.");
+        }
+        if (write_haiku(c, &h) == -1) exit(2);
+    }
+}
