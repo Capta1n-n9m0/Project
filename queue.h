@@ -4,7 +4,7 @@
 
 
 struct haiku_msg{
-    category type;
+    long type;
     haiku package;
 };
 

@@ -19,7 +19,7 @@ int create_queue(){
 int access_queue(){
     key_t k;
     int id;
-    k = ftok("/dev/null", "H");
+    k = ftok("/dev/null", 'H');
     if(k == -1) perror("ftok");
     id = msgget(k, 0);
     if(id == -1) perror("msgget");
