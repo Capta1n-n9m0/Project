@@ -12,6 +12,10 @@ void init_books(){
     j = read_book(japanese);
     w = read_book(western);
 }
+void clear_books(){
+    free_book(&w);
+    free_book(&j);
+}
 
 void sigint1(){
     signal(SIGINT, sigint1);
@@ -28,17 +32,18 @@ void sigquit1(){
 
 void server_v1(){
     init_books();
-    printf("Hello from server\n");
+    printf("Hello from server v1!\n");
     signal(SIGINT, sigint1);
     signal(SIGQUIT, sigquit1);
     for(int i = 0; i < 100; i++) {
         printf("#%d. Waiting for signal.\n", i);
         pause();
     }
+    clear_books();
 }
 // server should be writer, but client is reader
 void server_v2(){
-    printf("Hello from server\n");
+    printf("Hello from server v2!\n");
     haiku h;
     category c;
     init_books();
@@ -56,4 +61,5 @@ void server_v2(){
         }
         if (write_haiku(c, &h) == -1) exit(2);
     }
+    clear_books();
 }

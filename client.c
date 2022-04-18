@@ -9,7 +9,7 @@
 
 void client_v1(pid_t t){
     sleep(1);
-    printf("Hello from client\n");
+    printf("Hello from client v1!\n");
     int c;
     for(int i = 0; i < 100; i++){
         usleep(10*1000);
@@ -27,7 +27,7 @@ void client_v1(pid_t t){
 
 void client_v2(){
     sleep(1);
-    printf("Hello from client\n");
+    printf("Hello from client v2!\n");
     haiku h;
     category c;
     for(int i = 0; i < 6; i++){

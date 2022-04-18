@@ -1,3 +1,4 @@
+#define  _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -60,4 +61,9 @@ void print_haiku(haiku h){
     printf("%s", h.lines[0]);
     printf("%s", h.lines[1]);
     printf("%s", h.lines[2]);
+}
+
+void free_book(book *b){
+    free(b->poems);
+    b->size = 0;
 }

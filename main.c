@@ -9,6 +9,7 @@
 
 
 void v1(){
+    puts("Running V1");
     pid_t proc = fork();
     printf("fork res: %d\n", proc);
     if(proc > 0){
@@ -35,35 +36,26 @@ void *client_v2_wrapper(void *arg){
 }
 
 void v2(){
+    puts("Running V2");
     pthread_t s,c;
-    if(pthread_create(&s, NULL, server_v2_wrapper, NULL) != 0) perror("pthread_create");
-    if(pthread_create(&c, NULL, client_v2_wrapper, NULL) != 0) perror("pthread_create");
+    if(pthread_create(&s, NULL, server_v2_wrapper, NULL) != 0) {
+        perror("pthread_create");
+        exit(2);
+    }
+    if(pthread_create(&c, NULL, client_v2_wrapper, NULL) != 0) {
+        perror("pthread_create");
+        exit(2);
+    }
     pthread_join(s,NULL);
     pthread_join(c, NULL);
-}
-
-void test(){
-    book j = read_book(japanese);
-    book w = read_book(western);
-    haiku h;
-    int choice;
-    for(int i = 0; i < 20; i++){
-        choice = rand() % 2;
-        if(choice) h = select_random(j);
-        else h = select_random(w);
-        print_haiku(h);
-        puts("");
-    }
 }
 
 int main(int argc, char **argv) {
     srand(time(NULL));
     printf("Haiku project\n");
     assert(argc > 1);
-    // test();
-    printf("Server version %s\n", argv[1]);
-    printf("Client version %s\n", argv[1]);
     for(int i = 1; i < argc; i++){
+        printf("%d\n", i);
         switch (argv[i][0]) {
             case '1':
                 v1();
@@ -73,7 +65,10 @@ int main(int argc, char **argv) {
                 break;
             default:
                 puts("Not implemented.");
+                break;
         }
+        puts("");
+        sleep(1);
     }
     getchar();
     return 0;

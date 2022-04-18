@@ -19,5 +19,6 @@ typedef enum category_{
 book read_book(category c);
 haiku select_random(book b);
 void print_haiku(haiku h);
+void free_book(book *b);
 
 #endif //PROJECT_HAIKU_H
