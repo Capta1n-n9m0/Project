@@ -63,15 +63,17 @@ int main(int argc, char **argv) {
     // test();
     printf("Server version %s\n", argv[1]);
     printf("Client version %s\n", argv[1]);
-    switch (argv[1][0]) {
-        case '1':
-            v1();
-            break;
-        case '2':
-            v2();
-            break;
-        default:
-            puts("Not implemented.");
+    for(int i = 1; i < argc; i++){
+        switch (argv[i][0]) {
+            case '1':
+                v1();
+                break;
+            case '2':
+                v2();
+                break;
+            default:
+                puts("Not implemented.");
+        }
     }
     getchar();
     return 0;
