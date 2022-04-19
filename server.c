@@ -59,7 +59,7 @@ void server_v2(){
     category c;
     init_books();
     for(int i = 0; i < 6; i++){
-        printf("#%d. Sending book category ", i);
+        printf("#%d. Sending haiku category ", i);
         if(i%2) {
             c = japanese;
             h = select_random(j);

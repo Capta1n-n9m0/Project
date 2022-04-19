@@ -10,7 +10,7 @@ int is_queue = 0;
 int create_queue(){
     key_t k;
     int id;
-    k = ftok("/dev/null", 'H');
+    k = ftok("/dev/null", '2');
     if(k == -1) perror("ftok");
     id = msgget(k, IPC_CREAT | 0666);
     if(id == -1) perror("msgget");
@@ -19,7 +19,7 @@ int create_queue(){
 int access_queue(){
     key_t k;
     int id;
-    k = ftok("/dev/null", 'H');
+    k = ftok("/dev/null", '2');
     if(k == -1) perror("ftok");
     id = msgget(k, 0);
     if(id == -1) perror("msgget");
@@ -39,7 +39,7 @@ int write_haiku(category c, haiku *h){
     assert(h);
     int r;
     struct haiku_msg m = {0};
-    m.type = c;
+    m.type = c+1;
     m.package = *h;
     r = msgsnd(id, &m, sizeof(m) - sizeof(m.type), 0);
     if(r == -1) perror("msgsnd");
@@ -51,7 +51,7 @@ int read_haiku(category c, haiku *h){
     assert(h);
     int r;
     struct haiku_msg m = {0};
-    r = msgrcv(id, &m, sizeof(m) - sizeof(m.type), c, 0);
+    r = msgrcv(id, &m, sizeof(m) - sizeof(m.type), c+1, 0);
     if(r == -1) perror("msgrcv");
     *h = m.package;
     return  r;

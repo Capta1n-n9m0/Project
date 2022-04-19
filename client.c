@@ -80,6 +80,10 @@ int c_main(){
     server = *s;
     printf("Server process id: %d\n", server);
     client_v1(server);
-    return 1;
+
+    // closing shared memory
+    shmdt(s);
+    shmctl(id, IPC_RMID, 0);
+return 1;
 }
 
