@@ -28,11 +28,11 @@ typedef struct file_category_{
 
 // return the book of a haiku formed from file. filenames are hardcoded using array of file_category structure
 book read_book(category c);
-// returns random haiku from a given book
 haiku select_random(book b);
-// displays given haiku in terminal
 void print_haiku(haiku h);
-// because book works with dynamic memory, it needs to be freed
 void free_book(book *b);
+// returns random haiku from a given book
+// displays given haiku in terminal
+// because book works with dynamic memory, it needs to be freed
 
 #endif //PROJECT_HAIKU_H

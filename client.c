@@ -38,10 +38,8 @@ void client_v1(pid_t t){
 }
 
 void client_v2(){
-    sleep(1);
     printf("[CLIENT]Hello from client v2!\n");
-    haiku h;
-    category c;
+    sleep(1); haiku h; category c;
     for(int i = 0; i < 6; i++){
         printf("[CLIENT]#%d. Reading book category ", i);
         if(i%2) {
@@ -52,7 +50,7 @@ void client_v2(){
             c = japanese;
             puts("japanese.");
         }
-        if(read_haiku(c, &h) == -1) exit(2);
+        if(read_haiku(c, &h) == -1) error_c("read_haiku");
         print_haiku(h);
     }
 }

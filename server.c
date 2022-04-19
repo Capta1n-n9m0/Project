@@ -54,23 +54,20 @@ void server_v1(){
 }
 // server should be writer, but client is reader
 void server_v2(){
-    printf("Hello from server v2!\n");
-    haiku h;
-    category c;
-    init_books();
+    printf("[SERVER]Hello from server v2!\n");
+    haiku h; category c; init_books();
     for(int i = 0; i < 6; i++){
-        printf("#%d. Sending haiku category ", i);
+        printf("[SERVER]#%d.Sending haiku category ", i);
         if(i%2) {
             c = japanese;
             h = select_random(j);
             puts("japanese.");
-        }
-        else {
+        } else {
             c = western;
             h = select_random(w);
             puts("western.");
         }
-        if (write_haiku(c, &h) == -1) exit(2);
+        if(write_haiku(c,&h)==-1) error_s("write_haiku");
     }
     clear_books();
 }
