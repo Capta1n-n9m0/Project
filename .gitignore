@@ -1,5 +1,7 @@
 /cmake-build-debug/
 /pw3/
 /.idea/
-/*.o
-/main*
+*.o
+main*
+client
+server
