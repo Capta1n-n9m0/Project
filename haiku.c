@@ -5,6 +5,7 @@
 #include <time.h>
 #include "haiku.h"
 
+//
 file_category haiku_files[] = {
         {japanese, "japanese.haiku"},
         {western, "western.haiku"}
