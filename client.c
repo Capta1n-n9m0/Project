@@ -21,17 +21,17 @@ void error_c(const char *msg){
 
 void client_v1(pid_t t){
     sleep(1);
-    printf("Hello from client v1!\n");
+    printf("[CLIENT]Hello from client v1!\n");
     int c;
     for(int i = 0; i < 100; i++){
         usleep(10*1000);
         c = rand()%2;
         if(c) {
-            printf("#%d. Sending SIGINT to %d(%d)\n", i, t, c);
+            printf("[CLIENT]#%d. Sending SIGINT to %d(%d)\n", i, t, c);
             kill(t, SIGINT);
         }
         else {
-            printf("#%d. Sending SIGQUIT to %d(%d)\n", i, t, c);
+            printf("[CLIENT]#%d. Sending SIGQUIT to %d(%d)\n", i, t, c);
             kill(t, SIGQUIT);
         }
     }
@@ -39,11 +39,11 @@ void client_v1(pid_t t){
 
 void client_v2(){
     sleep(1);
-    printf("Hello from client v2!\n");
+    printf("[CLIENT]Hello from client v2!\n");
     haiku h;
     category c;
     for(int i = 0; i < 6; i++){
-        printf("#%d. Reading book category ", i);
+        printf("[CLIENT]#%d. Reading book category ", i);
         if(i%2) {
             c = western;
             puts("western.");
@@ -67,7 +67,7 @@ int c_main(){
         id = shmget(k,  sizeof(pid_t), 0644);
         if(id != -1) break;
         else{
-            fprintf(stderr, "Failed accessing shared memory. Server may not opened it yet. Attempt %d out of 5. Trying again in 2 seconds...\n", i+1);
+            fprintf(stderr, "[CLIENT]Failed accessing shared memory. Server may not opened it yet. Attempt %d out of 5. Trying again in 2 seconds...\n", i+1);
             sleep(2);
         }
     }
@@ -78,12 +78,12 @@ int c_main(){
     pid_t server;
     int *s = shmat(id, NULL, 0);
     server = *s;
-    printf("Server process id: %d\n", server);
+    printf("[CLIENT]Server process id: %d\n", server);
     client_v1(server);
 
     // closing shared memory
     shmdt(s);
     shmctl(id, IPC_RMID, 0);
-return 1;
+    return 0;
 }
 

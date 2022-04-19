@@ -87,7 +87,7 @@ int s_main(){
     *s = server;
 
     server_v1();
-    return 1;
+    return 0;
 }
 
 

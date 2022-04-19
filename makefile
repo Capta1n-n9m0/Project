@@ -11,6 +11,7 @@ all: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
 
 standalone: server client
+	./server & ./client
 
 server: server.h server.c queue.h queue.c haiku.h haiku.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -DSTANDALONE server.c queue.c haiku.c -o server
