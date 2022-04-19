@@ -2,7 +2,7 @@ ARGS		 =2
 EXECUTABLE 	=main
 CC 			=gcc
 CFLAGS 		=-Wall -Werror --pedantic -std=c11 -g
-LDFLAGS 	=-lm -lpthread -pthread -lcunit
+LDFLAGS 	=-lm -lpthread -pthread
 SOURCES 	=$(wildcard *.c)
 HEADERS 	=$(wildcard *.h)
 OBJECTS 	=$(SOURCES:.c=.o)
