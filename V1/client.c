@@ -56,7 +56,6 @@ int main(){
         usleep(1000*10);
     }
 
-
     // closing shared memory
     shmdt(s);
     shmctl(id, IPC_RMID, 0);
