@@ -24,9 +24,10 @@ void error(const char *msg){
 }
 
 // looks for corresponding signal in matrix and then prints corresponding haiku
-void signal_handler(int signal){
+void signal_handler(int s){
+    printf("[SERVER] Server received signal %d\n", s);
     int i;
-    for(i = 0; i < sizeof(category_signal)/sizeof(int); i++) if(category_signal[i] == signal) break;
+    for(i = 0; i < sizeof(category_signal)/sizeof(int); i++) if(category_signal[i] == s) break;
     haiku h;
     switch ((category)i) {
         case japanese:
@@ -40,6 +41,8 @@ void signal_handler(int signal){
             exit(2);
     }
     print_haiku(h);
+    signal(SIGINT, signal_handler);
+    signal(SIGQUIT, signal_handler);
 }
 
 // to let processes communicate via signals process id of a server is written to shared memory
