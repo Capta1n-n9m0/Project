@@ -11,10 +11,10 @@
 book w, j;
 
 #ifdef STANDALONE
-#define t_main main
+#define s_main main
 #endif
 
-void error(const char *msg){
+void error_s(const char *msg){
     perror(msg);
     exit(2);
 }
@@ -75,11 +75,11 @@ void server_v2(){
     clear_books();
 }
 
-int t_main(){
+int s_main(){
     key_t k = ftok("/dev/null", '1');
-    if(k == -1) error("ftok");
+    if(k == -1) error_s("ftok");
     int id = shmget(k,  sizeof(pid_t), 0644 | IPC_CREAT);
-    if(id == -1) error("shmget");
+    if(id == -1) error_s("shmget");
 
     // writing server process id
     pid_t server = getpid();
@@ -87,6 +87,7 @@ int t_main(){
     *s = server;
 
     server_v1();
+    return 1;
 }
 
 

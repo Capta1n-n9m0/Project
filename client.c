@@ -11,10 +11,10 @@
 // clever macro that if defined lets running t_main as main function of file
 // if macro is not defined, prevents conflicts of "main"s
 #ifdef STANDALONE
-#define t_main main
+#define c_main main
 #endif
 
-void error(const char *msg){
+void error_c(const char *msg){
     perror(msg);
     exit(2);
 }
@@ -57,10 +57,10 @@ void client_v2(){
     }
 }
 
-int t_main(){
+int c_main(){
     //access shared memory
     key_t k = ftok("/dev/null", '1');
-    if(k == -1) error("ftok");
+    if(k == -1) error_c("ftok");
     int id;
     //waiting for server to write data
     for(int i = 0; i < 5; i++){
@@ -72,7 +72,7 @@ int t_main(){
         }
     }
     id = shmget(k,  sizeof(pid_t), 0644);
-    if(id == -1) error("shmget");
+    if(id == -1) error_c("shmget");
 
     // reading server process id
     pid_t server;
@@ -80,5 +80,6 @@ int t_main(){
     server = *s;
     printf("Server process id: %d\n", server);
     client_v1(server);
+    return 1;
 }
 

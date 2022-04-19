@@ -19,7 +19,7 @@ void v1(){
         // son
         server_v1();
     } else { // proc < 0
-        // error
+        // error_s
         perror("fork");
         exit(2);
     }

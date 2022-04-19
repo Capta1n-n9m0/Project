@@ -1,4 +1,4 @@
-ARGS		 =2
+ARGS		=2
 EXECUTABLE 	=main
 CC 			=gcc
 CFLAGS 		=-Wall -Werror --pedantic -std=c11 -g
