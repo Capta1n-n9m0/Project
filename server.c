@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -5,8 +6,18 @@
 #include "server.h"
 #include "haiku.h"
 #include "queue.h"
+#include <sys/shm.h>
 
 book w, j;
+
+#ifdef STANDALONE
+#define t_main main
+#endif
+
+void error(const char *msg){
+    perror(msg);
+    exit(2);
+}
 
 void init_books(){
     j = read_book(japanese);
@@ -63,3 +74,19 @@ void server_v2(){
     }
     clear_books();
 }
+
+int t_main(){
+    key_t k = ftok("/dev/null", '1');
+    if(k == -1) error("ftok");
+    int id = shmget(k,  sizeof(pid_t), 0644 | IPC_CREAT);
+    if(id == -1) error("shmget");
+
+    // writing server process id
+    pid_t server = getpid();
+    int *s = shmat(id, NULL, 0);
+    *s = server;
+
+    server_v1();
+}
+
+

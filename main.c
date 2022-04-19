@@ -7,7 +7,7 @@
 #include "client.h"
 #include "haiku.h"
 
-
+// function that runs both server and client of the first version
 void v1(){
     puts("Running V1");
     pid_t proc = fork();
@@ -25,16 +25,19 @@ void v1(){
     }
 }
 
+// function that turns server v2 into appropriate form for threads
 void *server_v2_wrapper(void *arg){
     server_v2();
     pthread_exit(NULL);
 }
 
+// function that turns client v2 into appropriate form for threads
 void *client_v2_wrapper(void *arg){
     client_v2();
     pthread_exit(NULL);
 }
 
+// function that creates two threads: one for client, other for server
 void v2(){
     puts("Running V2");
     pthread_t s,c;
@@ -50,6 +53,7 @@ void v2(){
     pthread_join(c, NULL);
 }
 
+// main function allows running any version of haiku project depending on argument passed
 int main(int argc, char **argv) {
     srand(time(NULL));
     printf("Haiku project\n");

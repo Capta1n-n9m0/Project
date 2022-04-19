@@ -10,6 +10,14 @@ OBJECTS 	=$(SOURCES:.c=.o)
 all: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
 
+standalone: server client
+
+server: server.h server.c queue.h queue.c haiku.h haiku.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -DSTANDALONE server.c queue.c haiku.c -o server
+
+client: client.c client.c queue.h queue.c haiku.h haiku.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -DSTANDALONE client.c queue.c haiku.c -o client
+
 helgrind: $(EXECUTABLE)
 	valgrind --tool=helgrind -v ./$(EXECUTABLE) $(ARGS)
 
@@ -21,4 +29,4 @@ $(EXECUTABLE): $(OBJECTS)
 
 .PHONY: clean
 clean:
-	-rm $(EXECUTABLE) $(OBJECTS)
+	-rm $(EXECUTABLE) $(OBJECTS) client server
