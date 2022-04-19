@@ -53,7 +53,7 @@ int main(){
         sig = category_signal[rand()%(sizeof(category_signal)/sizeof(int))];
         printf("[CLIENT] #%d: Sending signal %d to %d\n", i, sig, server);
         kill(server, sig);
-        usleep(1000*10);
+        usleep(1000*500);
     }
 
     // closing shared memory

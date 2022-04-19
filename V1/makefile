@@ -4,8 +4,8 @@ LDFLAGS 	=-lm -lpthread -pthread -lcunit
 HAIKU 		=haiku.c haiku.h
 
 all: server client
-	./server
 	./client
+	./server
 
 helgrind: server client
 	valgrind --tool=helgrind -v ./server

@@ -44,7 +44,7 @@ void signal_handler(int signal){
 
 // to let processes communicate via signals process id of a server is written to shared memory
 int main(){
-    printf("Hello from client v1!\n");
+    printf("Hello from server v1!\n");
 
     //access shared memory
     key_t k = ftok("/dev/null", '1');
@@ -62,16 +62,9 @@ int main(){
     w = read_book(western);
 
     //setting up signals
-    sigset_t sigs;
-    sigemptyset(&sigs);
-    sigaddset(&sigs,SIGINT);
-    sigaddset(&sigs, SIGQUIT);
-    for(int i = 0; i < 100; i++){
-        int sig = sigtimedwait(&sigs, NULL, &((struct timespec){2,0}));
-        if(sig == -1) fprintf(stderr, "[SERVER] #%d: Signal was not received in 2 seconds, moving on.\n", i);
-        printf("Received signal %d\n", sig);
-        signal_handler(sig);
-    }
+    signal(SIGINT, signal_handler);
+    signal(SIGQUIT, signal_handler);
+    for(int i = 0; i < 100; i++) pause();
 
     //freeing books
     free_book(&j);
