@@ -12,7 +12,10 @@ bool compare_haikus(haiku h1, haiku h2){
 }
 
 bool compare_books(book b1, book b2){
-
+    if(b1.size != b2.size) return false;
+    for (int i = 0; i < b1.size; i++)
+        if(!compare_haikus(b1.poems[i], b2.poems[i])) return false;
+    return true;
 }
 
 
