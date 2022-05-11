@@ -44,14 +44,16 @@ int clean_suite1(void)
 void testGetline(void)
 {
     char *line = NULL;
-    size_t number_of_characters = 20; // including '\0' character
+    size_t number_of_characters = 16; // excluding '\0' character
     size_t len = 0;
 
     if (NULL != temp_file)
     {
         fprintf(temp_file, "testing_getline\n");
         rewind(temp_file); // set the file pointer at the beginning of the stream
-        CU_ASSERT(16 == getline(&line, &len, temp_file)); // test against number of characters in the first
+
+        CU_ASSERT( number_of_characters == getline(&line, &len, temp_file) ); 
+        // test against number of characters in the first
         // line of temp_file (i.e testing_getline\n) excluding NULL character
     }
 }
@@ -116,7 +118,6 @@ int main()
     }
 
     /* add the tests to the suite */
-    /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
     if (NULL == CU_add_test(pSuite, "test of testGetline", testGetline))
     {
         CU_cleanup_registry();
