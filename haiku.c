@@ -31,15 +31,22 @@ book read_book(category c){
             res.poems = calloc(1, sizeof(haiku));
         else
             res.poems = realloc(res.poems, sizeof(haiku)*res.size);
+        line[read-1] = '\0';
         strncpy(res.poems[res.size-1].author, line, 64);
-        if((read = getline(&line, &len, f)) != -1)
+        if((read = getline(&line, &len, f)) != -1) {
+            line[read-1] = '\0';
             strncpy(res.poems[res.size - 1].lines[0], line, 64);
+        }
         else exit(1);
-        if((read = getline(&line, &len, f)) != -1)
+        if((read = getline(&line, &len, f)) != -1) {
+            line[read-1] = '\0';
             strncpy(res.poems[res.size - 1].lines[1], line, 64);
+        }
         else exit(1);
-        if((read = getline(&line, &len, f)) != -1)
+        if((read = getline(&line, &len, f)) != -1) {
+            line[read-1] = '\0';
             strncpy(res.poems[res.size - 1].lines[2], line, 64);
+        }
         else exit(1);
     }
     fclose(f);
@@ -54,10 +61,10 @@ haiku select_random(book b){
 }
 
 void print_haiku(haiku h){
-    printf("Author: %s", h.author);
-    printf("%s", h.lines[0]);
-    printf("%s", h.lines[1]);
-    printf("%s", h.lines[2]);
+    printf("Author: %s\n", h.author);
+    printf("%s\n", h.lines[0]);
+    printf("%s\n", h.lines[1]);
+    printf("%s\n", h.lines[2]);
 }
 
 void free_book(book *b){
