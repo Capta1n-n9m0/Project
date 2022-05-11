@@ -76,8 +76,8 @@ bool compare_books(book b1, book b2)
     return true;
 }
 
-int test()
-{
+
+void test(){
     book b;
     b.size = 2;
     b.poems = calloc(2, sizeof(haiku));
