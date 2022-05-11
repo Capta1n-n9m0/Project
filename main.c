@@ -7,6 +7,11 @@
 #include "client.h"
 #include "haiku.h"
 
+void error(const char *msg){
+    perror(msg);
+    exit(2);
+}
+
 // function that runs both server and client of the first version
 void v1(){
     puts("Running V1");
@@ -41,15 +46,11 @@ void *client_v2_wrapper(void *arg){
 void v2(){
     puts("Running V2");
     pthread_t s,c;
-    if(pthread_create(&s, NULL, server_v2_wrapper, NULL) != 0) {
-        perror("pthread_create");
-        exit(2);
-    }
-    if(pthread_create(&c, NULL, client_v2_wrapper, NULL) != 0) {
-        perror("pthread_create");
-        exit(2);
-    }
-    pthread_join(s,NULL);
+    if(pthread_create(&s, NULL, server_v2_wrapper, NULL) != 0)
+        error("pthread_create");
+    if(pthread_create(&c, NULL, client_v2_wrapper, NULL) != 0)
+        error("pthread_create");
+    pthread_join(s, NULL);
     pthread_join(c, NULL);
 }
 
