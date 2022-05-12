@@ -39,7 +39,7 @@ void server_v1(){
     int sig = 0;
     sigemptyset(&sigset1);
     for(int i = 0; i < 100; i++){
-        if(sigwait(&sigset1, &sig) != -1) error("sigwait");
+        if(sigwait(&sigset1, &sig) == -1) error("sigwait");
         switch (sig) {
             case SIGQUIT:
                 print_haiku(select_random(w));
@@ -92,11 +92,11 @@ void v2_haiku_reader(){
 void *writer_thread_function(void *agr){
     printf("[WRITER] Writer thread is up.\n");
     sigset_t set;
+    int sig;
     sigemptyset(&set);
     if(sigaddset(&set, SIGUSR1) == -1) error("sigaddset");
     while (1){
-        if (sigwait(&set, SIGUSR1) != SIGUSR1)error("sigwait");
-
+        if (sigwait(&set, &sig) == -1)error("sigwait");
 
     }
 }
