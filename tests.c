@@ -1,8 +1,11 @@
+#define  _GNU_SOURCE
+#include "queue.h"
 #include "haiku.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+
 #include <CUnit/Basic.h>
 
 /* Pointer to the file used by the tests. */
@@ -41,10 +44,21 @@ int clean_suite1(void)
     }
 }
 
+void testMsgQueue(void){
+
+    int test_id_queue;
+
+    CU_ASSERT( -1 != (test_id_queue = create_queue()) );
+    CU_ASSERT( -1 != (test_id_queue = access_queue()) );
+    CU_ASSERT( -1 != (remove_queue(test_id_queue)) );
+    
+
+}
+
 void testGetline(void)
 {
     char *line = NULL;
-    size_t number_of_characters = 16; // excluding '\0' character
+    size_t number_of_characters = sizeof("testing_getline\n") - 1; // excluding '\0' character
     size_t len = 0;
 
     if (NULL != temp_file)
@@ -77,6 +91,7 @@ bool compare_books(book b1, book b2)
             return false;
     return true;
 }
+
 
 
 void test(){
@@ -118,7 +133,9 @@ int main()
     }
 
     /* add the tests to the suite */
-    if (NULL == CU_add_test(pSuite, "test of testGetline", testGetline))
+    if (NULL == CU_add_test(pSuite, "test of testGetline", testGetline) ||
+        NULL == CU_add_test(pSuite, "testing msg queue functions", testMsgQueue)
+    )
     {
         CU_cleanup_registry();
         return CU_get_error();

@@ -26,10 +26,12 @@ int access_queue(){
     if(id == -1) perror("msgget");
     return id;
 }
-void remove_queue(int id){
+int remove_queue(int id){
     int r;
     r = msgctl(id, IPC_RMID, NULL);
     if(r == -1) perror("msgctl");
+
+    return r;
 }
 int write_haiku(category c, haiku *h){
     int id = create_queue();
