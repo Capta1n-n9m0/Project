@@ -2,7 +2,7 @@
 This is the project for Operating Systems Architecture course of: 
 - Abbas Aliyev
 - Aziz Salimli
-- Habil ...
+- Habil Abdulkhaligov
 - Narmin Pashayeva
 - Nijat Hamidov
  
