@@ -7,8 +7,11 @@
 #include "haiku.h"
 #include "queue.h"
 #include <sys/shm.h>
+#include <pthread.h>
 
 book w, j;
+haiku haiku1;
+pthread_mutex_t  w_book_lock, j_book_lock, haiku1_lock;
 
 #ifdef STANDALONE
 #define s_main main
@@ -28,27 +31,23 @@ void clear_books(){
     free_book(&j);
 }
 
-void sigint1(){
-    signal(SIGINT, sigint1);
-    printf("Jap\n");
-    print_haiku(select_random(j));
-}
-
-void sigquit1(){
-    signal(SIGQUIT, sigquit1);
-    printf("West\n");
-    print_haiku(select_random(w));
-}
-
 
 void server_v1(){
     init_books();
     printf("Hello from server v1!\n");
-    signal(SIGINT, sigint1);
-    signal(SIGQUIT, sigquit1);
-    for(int i = 0; i < 100; i++) {
-        printf("#%d. Waiting for signal.\n", i);
-        pause();
+    sigset_t sigset1;
+    int sig = 0;
+    sigemptyset(&sigset1);
+    for(int i = 0; i < 100; i++){
+        if(sigwait(&sigset1, &sig) != -1) error("sigwait");
+        switch (sig) {
+            case SIGQUIT:
+                print_haiku(select_random(w));
+            case SIGINT:
+                print_haiku(select_random(j));
+            default:
+                error("signal");
+        }
     }
     clear_books();
 }
@@ -89,6 +88,30 @@ void v2_haiku_reader(){
     }
 }
 // server should be writer, but client is reader
+
+void *writer_thread_function(void *agr){
+    printf("[WRITER] Writer thread is up.\n");
+    sigset_t set;
+    sigemptyset(&set);
+    if(sigaddset(&set, SIGUSR1) == -1) error("sigaddset");
+    while (1){
+        if (sigwait(&set, SIGUSR1) != SIGUSR1)error("sigwait");
+
+
+    }
+}
+
+void sever_v3(){
+    if(pthread_mutex_init(&w_book_lock, NULL) != 0) error("pthread_mutex_init");
+    if(pthread_mutex_init(&j_book_lock, NULL) != 0) error("pthread_mutex_init");
+    if(pthread_mutex_init(&haiku1_lock, NULL) != 0) error("pthread_mutex_init");
+
+
+
+    pthread_mutex_destroy(&w_book_lock);
+    pthread_mutex_destroy(&j_book_lock);
+    pthread_mutex_destroy(&haiku1_lock);
+}
 
 int s_main(){
     key_t k = ftok("/dev/null", '1');
