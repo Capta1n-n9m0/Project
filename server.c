@@ -14,7 +14,7 @@ book w, j;
 #define s_main main
 #endif
 
-void error_s(const char *msg){
+static void error(const char *msg){
     perror(msg);
     exit(2);
 }
@@ -52,12 +52,12 @@ void server_v1(){
     }
     clear_books();
 }
-// server should be writer, but client is reader
-void server_v2(){
-    printf("[SERVER]Hello from server v2!\n");
+
+void v2_haiku_writer(){
+    printf("[WRITER]Hello from writer v2!\n");
     haiku h; category c; init_books();
     for(int i = 0; i < 6; i++){
-        printf("[SERVER]#%d.Sending haiku category ", i);
+        printf("[WRITER]#%d.Sending haiku category ", i);
         if(i%2) {
             c = japanese;
             h = select_random(j);
@@ -67,16 +67,34 @@ void server_v2(){
             h = select_random(w);
             puts("western.");
         }
-        if(write_haiku(c,&h)==-1) error_s("write_haiku");
+        if(write_haiku(c,&h)==-1) error("write_haiku");
     }
     clear_books();
 }
+void v2_haiku_reader(){
+    printf("[READER]Hello from reader v2!\n");
+    sleep(1); haiku h; category c;
+    for(int i = 0; i < 6; i++){
+        printf("[READER]#%d. Reading book category ", i);
+        if(i%2) {
+            c = western;
+            puts("western.");
+        }
+        else {
+            c = japanese;
+            puts("japanese.");
+        }
+        if(read_haiku(c, &h) == -1) error("read_haiku");
+        print_haiku(h);
+    }
+}
+// server should be writer, but client is reader
 
 int s_main(){
     key_t k = ftok("/dev/null", '1');
-    if(k == -1) error_s("ftok");
+    if(k == -1) error("ftok");
     int id = shmget(k,  sizeof(pid_t), 0644 | IPC_CREAT);
-    if(id == -1) error_s("shmget");
+    if(id == -1) error("shmget");
 
     // writing server process id
     pid_t server = getpid();

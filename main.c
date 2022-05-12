@@ -31,14 +31,14 @@ void v1(){
 }
 
 // function that turns server v2 into appropriate form for threads
-void *server_v2_wrapper(void *arg){
-    server_v2();
+void *v2_writer_wrapper(void *arg){
+    v2_haiku_writer();
     pthread_exit(NULL);
 }
 
 // function that turns client v2 into appropriate form for threads
-void *client_v2_wrapper(void *arg){
-    client_v2();
+void *v2_reader_wrapper(void *arg){
+    v2_haiku_reader();
     pthread_exit(NULL);
 }
 
@@ -46,9 +46,9 @@ void *client_v2_wrapper(void *arg){
 void v2(){
     puts("Running V2");
     pthread_t s,c;
-    if(pthread_create(&s, NULL, server_v2_wrapper, NULL) != 0)
+    if(pthread_create(&s, NULL, v2_writer_wrapper, NULL) != 0)
         error("pthread_create");
-    if(pthread_create(&c, NULL, client_v2_wrapper, NULL) != 0)
+    if(pthread_create(&c, NULL, v2_reader_wrapper, NULL) != 0)
         error("pthread_create");
     pthread_join(s, NULL);
     pthread_join(c, NULL);
