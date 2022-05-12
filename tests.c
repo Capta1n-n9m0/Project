@@ -44,7 +44,7 @@ int clean_suite1(void)
 void testGetline(void)
 {
     char *line = NULL;
-    size_t number_of_characters = 16; // excluding '\0' character
+    size_t number_of_characters = 15; // excluding '\0' character
     size_t len = 0;
 
     if (NULL != temp_file)
@@ -52,7 +52,7 @@ void testGetline(void)
         fprintf(temp_file, "testing_getline\n");
         rewind(temp_file); // set the file pointer at the beginning of the stream
 
-        CU_ASSERT( number_of_characters == getline(&line, &len, temp_file) ); 
+        CU_ASSERT( number_of_characters == (getline(&line, &len, temp_file)) ); 
         // test against number of characters in the first
         // line of temp_file (i.e testing_getline\n) excluding NULL character
     }
