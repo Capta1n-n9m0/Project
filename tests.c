@@ -44,7 +44,7 @@ int clean_suite1(void)
 void testGetline(void)
 {
     char *line = NULL;
-    size_t number_of_characters = 15; // excluding '\0' character
+    size_t number_of_characters = 16; // excluding '\0' character
     size_t len = 0;
 
     if (NULL != temp_file)
