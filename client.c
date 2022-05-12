@@ -35,8 +35,14 @@ void client_v1(pid_t t){
             kill(t, SIGQUIT);
         }
     }
+    kill(t, SIGCHLD);
 }
 
+void client_v3(pid_t t){
+    sleep(1);
+    printf("[CLIENT] Hello from client v3!\n");
+
+}
 
 int c_main(){
     //access shared memory

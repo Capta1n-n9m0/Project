@@ -46,8 +46,8 @@ int read_haiku(category c, haiku *h){
     if(id == -1) return -1;
     assert(h);
     struct haiku_msg m = {0};
-    int r = msgrcv(id, &m, sizeof(m) - sizeof(m.type), c+1, 0);
-    if(r == -1) perror("msgrcv");
+    int r = msgrcv(id, &m, sizeof(m) - sizeof(m.type), c+1, IPC_NOWAIT);
+    //if(r == -1) perror("msgrcv");
     *h = m.package;
     return  r;
 }
