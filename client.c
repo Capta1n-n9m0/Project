@@ -14,7 +14,7 @@
 #define c_main main
 #endif
 
-void error_c(const char *msg){
+static void error(const char *msg){
     perror(msg);
     exit(2);
 }
@@ -37,28 +37,11 @@ void client_v1(pid_t t){
     }
 }
 
-void client_v2(){
-    printf("[CLIENT]Hello from client v2!\n");
-    sleep(1); haiku h; category c;
-    for(int i = 0; i < 6; i++){
-        printf("[CLIENT]#%d. Reading book category ", i);
-        if(i%2) {
-            c = western;
-            puts("western.");
-        }
-        else {
-            c = japanese;
-            puts("japanese.");
-        }
-        if(read_haiku(c, &h) == -1) error_c("read_haiku");
-        print_haiku(h);
-    }
-}
 
 int c_main(){
     //access shared memory
     key_t k = ftok("/dev/null", '1');
-    if(k == -1) error_c("ftok");
+    if(k == -1) error("ftok");
     int id;
     //waiting for server to write data
     for(int i = 0; i < 5; i++){
@@ -70,7 +53,7 @@ int c_main(){
         }
     }
     id = shmget(k,  sizeof(pid_t), 0644);
-    if(id == -1) error_c("shmget");
+    if(id == -1) error("shmget");
 
     // reading server process id
     pid_t server;

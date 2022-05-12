@@ -2,7 +2,8 @@
 #define PROJECT_SERVER_H
 
 void server_v1();
-void server_v2();
+void v2_haiku_writer();
+void v2_haiku_reader();
 
 
 

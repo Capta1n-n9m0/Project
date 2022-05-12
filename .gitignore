@@ -5,3 +5,6 @@
 main*
 client
 server
+haiku
+tests
+.vscode
