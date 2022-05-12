@@ -1,8 +1,8 @@
-ARGS		=2
+ARGS		=3
 EXECUTABLE 	=haiku
 CC 			=gcc
 CFLAGS 		=-Wall -Werror --pedantic -std=c11 -g
-LDFLAGS 	=-lm -lpthread -pthread -lcunit
+LDFLAGS 	=-lm -lpthread -pthread -lcunit -lncurses
 SOURCES 	=main.c server.c client.c haiku.c queue.c
 HEADERS 	=server.h client.h haiku.h queue.h
 OBJECTS 	=$(SOURCES:.c=.o)
@@ -11,7 +11,7 @@ all: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
 
 standalone: server client
-	./server & ./client
+	./server $(ARGS) & ./client $(ARGS)
 
 server: server.h server.c queue.h queue.c haiku.h haiku.c
 	$(CC) $(CFLAGS) -DSTANDALONE server.c queue.c haiku.c -o server $(LDFLAGS)

@@ -4,6 +4,7 @@
 void server_v1();
 void v2_haiku_writer();
 void v2_haiku_reader();
+void server_v3();
 
 
 

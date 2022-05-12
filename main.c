@@ -42,7 +42,7 @@ void *v2_reader_wrapper(void *arg){
     pthread_exit(NULL);
 }
 
-// function that creates two threads: one for client, other for server
+// function that creates two threads: one for reader, other for writer
 void v2(){
     puts("Running V2");
     pthread_t s,c;
@@ -52,6 +52,24 @@ void v2(){
         error("pthread_create");
     pthread_join(s, NULL);
     pthread_join(c, NULL);
+}
+
+// function that runs both server and client of the third version
+void v3(){
+    puts("Running V3");
+    pid_t proc = fork();
+    printf("fork res: %d\n", proc);
+    if(proc > 0){
+        // father
+        client_v3(proc);
+    } else if(proc == 0){
+        // son
+        server_v3();
+    } else { // proc < 0
+        // error_s
+        perror("fork");
+        exit(2);
+    }
 }
 
 // main function allows running any version of haiku project depending on argument passed
@@ -67,6 +85,9 @@ int main(int argc, char **argv) {
                 break;
             case '2':
                 v2();
+                break;
+            case '3':
+                v3();
                 break;
             default:
                 puts("Not implemented.");

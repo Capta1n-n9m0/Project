@@ -7,6 +7,7 @@
 #include "haiku.h"
 #include "queue.h"
 #include <sys/shm.h>
+#include <stdbool.h>
 
 // clever macro that if defined lets running t_main as main function of file
 // if macro is not defined, prevents conflicts of "main"s
@@ -41,10 +42,38 @@ void client_v1(pid_t t){
 void client_v3(pid_t t){
     sleep(1);
     printf("[CLIENT] Hello from client v3!\n");
+    bool run_condition = true;
+    while (run_condition){
+        puts("Press 1-3 to perform action");
+        printf("1 : Print japanese haiku.\n");
+        printf("2 : Print western haiku.\n");
+        printf("3 : Quit.\n");
+        char c;
+        switch (c = getchar()) {
+            case '1':
+                printf("[CLIENT] Sending SIGINT to %d\n", t);
+                kill(t, SIGINT);
+                break;
+            case '2':
+                printf("[CLIENT] Sending SIGQUIT to %d\n", t);
+                kill(t, SIGQUIT);
+                break;
+            case '3':
+                printf("[CLIENT] Sending SIGCHLD to %d\n", t);
+                kill(t, SIGCHLD);
+                run_condition = false;
+                printf("[CLIENT] Client is terminating\n");
+                break;
+            default:
+                printf("\nWRONG KEY : %c(%d)\"\"\n\n", c, c);
+                break;
+        }
+        getchar();
+    }
 
 }
 
-int c_main(){
+int c_main(int argc, char **argv){
     //access shared memory
     key_t k = ftok("/dev/null", '1');
     if(k == -1) error("ftok");
@@ -66,7 +95,17 @@ int c_main(){
     int *s = shmat(id, NULL, 0);
     server = *s;
     printf("[CLIENT]Server process id: %d\n", server);
-    client_v1(server);
+
+    switch (argv[1][0]) {
+        case '1':
+            client_v1(server);
+            break;
+        case '3':
+            client_v3(server);
+            break;
+        default:
+            fprintf(stderr, "Not implemented: %s\n", argv[1]);
+    }
 
     // closing shared memory
     shmdt(s);

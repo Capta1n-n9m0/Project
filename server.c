@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <assert.h>
 
 book w, j;
 pthread_mutex_t  w_book_lock, j_book_lock;
@@ -153,7 +154,7 @@ void *writer_thread_function(void *arg){
     return NULL;
 }
 
-void sever_v3(){
+void server_v3(){
     init_books();
     haiku h;
     sigset_t set;
@@ -170,9 +171,11 @@ void sever_v3(){
     if(pthread_mutex_init(&w_book_lock, NULL) != 0) error("pthread_mutex_init");
     if(pthread_mutex_init(&j_book_lock, NULL) != 0) error("pthread_mutex_init");
     if(pthread_create(&writer_thread, NULL, writer_thread_function, &main_thread) != 0) perror("pthread_create");
-
+    pthread_kill(writer_thread, SIGINT);
+    pthread_kill(writer_thread, SIGQUIT);
     while (run_condition){
         if(sigwait(&set, &sig) == -1) error("sigwait");
+        printf("[SERVER] I received signal %d\n", sig);
         switch (sig) {
             case SIGQUIT:
                 last_category = western;
@@ -212,7 +215,8 @@ void sever_v3(){
     clear_books();
 }
 
-int s_main(){
+int s_main(int argc, char **argv){
+    assert(argc > 1);
     key_t k = ftok("/dev/null", '1');
     if(k == -1) error("ftok");
     int id = shmget(k,  sizeof(pid_t), 0644 | IPC_CREAT);
@@ -223,7 +227,16 @@ int s_main(){
     int *s = shmat(id, NULL, 0);
     *s = server;
 
-    server_v1();
+    switch (argv[1][0]) {
+        case '1':
+            server_v1();
+            break;
+        case '3':
+            server_v3();
+            break;
+        default:
+            fprintf(stderr, "Not implemented: %s\n", argv[1]);
+    }
     return 0;
 }
 
