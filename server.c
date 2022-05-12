@@ -7,13 +7,12 @@
 #include "haiku.h"
 #include "queue.h"
 #include <sys/shm.h>
-#include <pthread.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <assert.h>
 
 book w, j;
-pthread_mutex_t  w_book_lock, j_book_lock;
+bool run_condition = true;
 
 #ifdef STANDALONE
 #define s_main main
@@ -34,32 +33,26 @@ void clear_books(){
 }
 
 
+void sigquit_v1(int sig){
+    signal(SIGQUIT, sigquit_v1);
+    print_haiku(select_random(w));
+}
+void sigint_v1(int sig){
+    signal(SIGINT, sigquit_v1);
+    print_haiku(select_random(w));
+}
+void sigchld_v1(int sig){
+    run_condition = false;
+}
+
 void server_v1(){
     init_books();
-    bool run_condition = true;
     printf("[SERVER] Hello from server v1!\n");
-    sigset_t set;
-    int sig = 0;
-    sigemptyset(&set);
-    if(sigaddset(&set, SIGQUIT) == -1) error("sigaddset");
-    if(sigaddset(&set, SIGINT) == -1) error("sigaddset");
-    if(sigaddset(&set, SIGCHLD) == -1) error("sigaddset");
+    signal(SIGQUIT, sigquit_v1);
+    signal(SIGINT, sigint_v1);
+    signal(SIGCHLD, sigchld_v1);
     while(run_condition){
-        if(sigwait(&set, &sig) == -1) error("sigwait");
-        switch (sig) {
-            case SIGQUIT:
-                print_haiku(select_random(w));
-                break;
-            case SIGINT:
-                print_haiku(select_random(j));
-                break;
-            case SIGCHLD:
-                printf("[SERVER] Server terminating\n");
-                run_condition = false;
-                break;
-            default:
-                error("signal");
-        }
+        pause();
     }
     clear_books();
 }
@@ -82,136 +75,73 @@ void v2_haiku_writer(){
     }
     clear_books();
 }
-void v2_haiku_reader(){
+void v2_haiku_reader() {
     printf("[READER]Hello from reader v2!\n");
-    sleep(1); haiku h; category c;
-    for(int i = 0; i < 6; i++){
+    sleep(1);
+    haiku h;
+    category c;
+    for (int i = 0; i < 6; i++) {
         printf("[READER]#%d. Reading book category ", i);
-        if(i%2) {
+        if (i % 2) {
             c = western;
             puts("western.");
-        }
-        else {
+        } else {
             c = japanese;
             puts("japanese.");
         }
-        if(read_haiku(c, &h) == -1) error("read_haiku");
+        if (read_haiku(c, &h) == -1) error("read_haiku");
         print_haiku(h);
     }
 }
 
-void *writer_thread_function(void *arg){
-    printf("[WRITER] Writer thread is up.\n");
-    pthread_t main_thread = ((pthread_t *)arg)[0];
-    bool run_condition = true;
-    sigset_t set;
+void sigquit_v3(int sig){
     haiku h;
-    int sig;
-    sigemptyset(&set);
-    if(sigaddset(&set, SIGUSR1) == -1) error("sigaddset");
-    if(sigaddset(&set, SIGUSR2) == -1) error("sigaddset");
-    if(sigaddset(&set, SIGCHLD) == -1) error("sigaddset");
-    while (run_condition){
-        if (sigwait(&set, &sig) == -1) {
-            perror("sigwait");
-            break;
-        }
-        switch (sig) {
-            case SIGUSR1:
-                printf("[WRITER] writing 3 japanese haiku to the queue\n");
-                pthread_mutex_lock(&j_book_lock);
+    if(read_haiku(western, &h) == -1){
+        if(errno != ENOMSG) error("read_haiku");
+        raise(SIGUSR1);
+    } else print_haiku(h);
+}
 
-                // write 3 japanese haiku
-                for(int i = 0; i < 3; i++){
-                    h = select_random(j);
-                    if(write_haiku(japanese, &h) == -1) error("write_haiku");
-                }
-
-                pthread_mutex_unlock(&j_book_lock);
-                pthread_kill(main_thread, SIGUSR1);
-                break;
-            case SIGUSR2:
-                printf("[WRITER] writing 3 western haiku to the queue\n");
-                pthread_mutex_lock(&w_book_lock);
-
-                // write 3 western haiku
-                for(int i = 0; i < 3; i++){
-                    h = select_random(w);
-                    if(write_haiku(western, &h) == -1) error("write_haiku");
-                }
-
-                pthread_mutex_unlock(&w_book_lock);
-                pthread_kill(main_thread, SIGUSR1);
-                break;
-            case SIGCHLD:
-                printf("[WRITER] Writer is terminating.");
-                run_condition = false;
-                break;
-            default:
-                error("Wrong value");
-        }
+void sigusr1_v3(int sig){
+    haiku h;
+    for (int i = 0; i < 3; i++) {
+        h = select_random(w);
+        if (write_haiku(western, &h) == -1) error("write_haiku");
     }
-    return NULL;
+    raise(SIGQUIT);
+}
+
+void sigint_v3(int sig){
+    haiku h;
+    if(read_haiku(japanese, &h) == -1){
+        if(errno != ENOMSG) error("read_haiku");
+        raise(SIGUSR2);
+    } else print_haiku(h);
+
+}
+
+void sigusr2_v3(int sig){
+    haiku h;
+    for (int i = 0; i < 3; i++) {
+        h = select_random(j);
+        if (write_haiku(japanese, &h) == -1) error("write_haiku");
+    }
+    raise(SIGINT);
 }
 
 void server_v3(){
     init_books();
-    haiku h;
-    sigset_t set;
-    int sig;
-    bool run_condition = true;
-    category last_category;
-    pthread_t writer_thread, main_thread;
-    main_thread = pthread_self();
-    sigemptyset(&set);
-    if(sigaddset(&set, SIGQUIT) == -1) error("sigaddset");
-    if(sigaddset(&set, SIGINT) == -1) error("sigaddset");
-    if(sigaddset(&set, SIGCHLD) == -1) error("sigaddset");
-    if(sigaddset(&set, SIGUSR1) == -1) error("sigaddset");
-    if(pthread_mutex_init(&w_book_lock, NULL) != 0) error("pthread_mutex_init");
-    if(pthread_mutex_init(&j_book_lock, NULL) != 0) error("pthread_mutex_init");
-    if(pthread_create(&writer_thread, NULL, writer_thread_function, &main_thread) != 0) perror("pthread_create");
-    pthread_kill(writer_thread, SIGINT);
-    pthread_kill(writer_thread, SIGQUIT);
+    int id = create_queue();
+    signal(SIGINT, sigint_v3);
+    signal(SIGQUIT, sigquit_v3);
+    signal(SIGUSR1, sigusr1_v3);
+    signal(SIGUSR2, sigusr2_v3);
+    signal(SIGCHLD, sigchld_v1);
     while (run_condition){
-        if(sigwait(&set, &sig) == -1) error("sigwait");
-        printf("[SERVER] I received signal %d\n", sig);
-        switch (sig) {
-            case SIGQUIT:
-                last_category = western;
-                break;
-            case SIGINT:
-                last_category = japanese;
-                break;
-            case SIGCHLD:
-                printf("[SERVER] Server terminating\n");
-                pthread_kill(writer_thread, SIGCHLD);
-                run_condition = false;
-                break;
-            case SIGUSR1:
-                break;
-            default:
-                error("signal");
-        }
-        if(read_haiku(last_category, &h) != -1){
-            if(errno != ENOMSG)error("read_haiku");
-            switch (last_category) {
-                case japanese:
-                    pthread_kill(writer_thread, SIGQUIT);
-                    break;
-                case western:
-                    pthread_kill(writer_thread, SIGINT);
-                    break;
-                default:
-                    error("Unknown category");
-            }
-        } else print_haiku(h);
-
+        pause();
     }
-
-    pthread_join(writer_thread, NULL);
-    pthread_mutex_destroy(&w_book_lock);
-    pthread_mutex_destroy(&j_book_lock);
+    printf("[SERVER] Server is terminating.\n");
+    remove_queue(id);
     clear_books();
 }
 

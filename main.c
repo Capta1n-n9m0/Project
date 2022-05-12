@@ -96,6 +96,5 @@ int main(int argc, char **argv) {
         puts("");
         sleep(1);
     }
-    getchar();
     return 0;
 }

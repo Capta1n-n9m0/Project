@@ -10,7 +10,7 @@ int is_queue = 0;
 int create_queue(){
     key_t k;
     int id;
-    k = ftok("/dev/null", '2');
+    k = ftok("./", '2');
     if(k == -1) perror("ftok");
     id = msgget(k, IPC_CREAT | 0666);
     if(id == -1) perror("msgget");
@@ -20,7 +20,7 @@ int create_queue(){
 int access_queue(){
     key_t k;
     int id;
-    k = ftok("/dev/null", '2');
+    k = ftok("./", '2');
     if(k == -1) perror("ftok");
     id = msgget(k, 0);
     if(id == -1) perror("msgget");
