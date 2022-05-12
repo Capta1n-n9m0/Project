@@ -130,6 +130,7 @@ void sigusr2_v3(int sig){
 }
 
 void server_v3(){
+    puts("[SERVER] Server V3 is up!");
     init_books();
     int id = create_queue();
     signal(SIGINT, sigint_v3);
@@ -156,6 +157,7 @@ int s_main(int argc, char **argv){
     pid_t server = getpid();
     int *s = shmat(id, NULL, 0);
     *s = server;
+    printf("[SERVER] Wrote process id(%d) to shared memory(id=%d)\n", server, id);
 
     switch (argv[1][0]) {
         case '1':
