@@ -152,7 +152,7 @@ int main()
 
     /* add the tests to the suite */
     if (NULL == CU_add_test(pSuite, "test of testGetline", testGetline) ||
-        NULL == CU_add_test(pSuite, "testing msg queue function", testMsgQueue) ||
+        NULL == CU_add_test(pSuite, "testing msg queue functions", testMsgQueue) ||
         NULL == CU_add_test(pSuite, "testing read_book function", testReadBook))
     {
         CU_cleanup_registry();
