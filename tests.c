@@ -66,7 +66,6 @@ void *dummy_thread(void *arg){
 void test_threads(void){
 
     pthread_t dummy;
-    // check the creation of two threads for writer and reader threads
     CU_ASSERT(pthread_create(&dummy, NULL, dummy_thread, NULL) == 0);
 
     CU_ASSERT(pthread_kill(dummy, SIGCHLD) == 0);
