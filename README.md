@@ -1,10 +1,10 @@
 # Operating Systems Architecture - Haiku project
-This is the project for Operating Systems Architecture course of: 
-- Abbas Aliyev
-- Aziz Salimli
-- Habil Abdulkhaligov
-- Narmin Pashayeva
-- Nijat Hamidov
+This is the project for Operating Systems Architecture course of:  
+* Abbas Aliyev
+* Aziz Salimli
+* Habil Abdulkhaligov
+* Narmin Pashayeva
+* Nijat Hamidov
  
 ## Introduction 
 The goal of this project is to demonstrate our skills in using operating systems' tools 
@@ -157,6 +157,8 @@ is passed to reader and writer thread, also terminating them.
 Same mechanism of different execution modes from version 1 is available in version 3.
 
 ## Tests
-
+We are running test for all basic function: testing for reads, testing for message
+queue, testing for threads. Also, we are testing `read_category()` function for ensuring
+that we read book correctly.
 
 

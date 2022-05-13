@@ -137,25 +137,6 @@ void testReadBook(void)
     CU_ASSERT_TRUE(compare_books(read_category(japanese), test_haiku_book));
 }
 
-void test()
-{
-    book b;
-    b.size = 2;
-    b.poems = calloc(2, sizeof(haiku));
-    b.poems[0] = (haiku){
-        "Author",
-        {"line1",
-         "line2",
-         "line3"}};
-    b.poems[1] = (haiku){
-        "Author",
-        {"line1",
-         "line2",
-         "line3"}};
-    book actuall = read_category(japanese);
-    compare_books(b, actuall);
-}
-
 /* The main() function for setting up and running the tests.
  * Returns a CUE_SUCCESS on successful running, another
  * CUnit error code on failure.
