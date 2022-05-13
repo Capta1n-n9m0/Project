@@ -7,10 +7,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <signal.h>
 
 #include <CUnit/Basic.h>
-
-static pthread_t writer_thread, reader_thread;
 
 bool compare_haikus(haiku h1, haiku h2)
 {
@@ -57,23 +56,27 @@ int init_suite1(void)
 
 int init_suite_for_threads(void)
 {
-    return 1;
+    return 0;
+}
+
+void *dummy_thread(void *arg){
+    return NULL;
 }
 
 void test_threads(void){
 
-
+    pthread_t dummy;
     // check the creation of two threads for writer and reader threads
-    CU_ASSERT(pthread_create(&writer_thread, NULL, writer_thread_function, NULL) != 0);
-    CU_ASSERT(pthread_create(&reader_thread, NULL, reader_thread_function, NULL) != 0);
+    CU_ASSERT(pthread_create(&dummy, NULL, dummy_thread, NULL) == 0);
 
-    CU_ASSERT(pthread_join(writer_thread, NULL) != 0);
-    CU_ASSERT(pthread_join(reader_thread, NULL) != 0);
+    CU_ASSERT(pthread_kill(dummy, SIGCHLD) == 0);
+
+    CU_ASSERT(pthread_join(dummy, NULL) == 0);
 }
 
 int clean_suite_for_threads(void)
 {
-    return 1;
+    return 0;
 }
 
 /* The suite cleanup function.
