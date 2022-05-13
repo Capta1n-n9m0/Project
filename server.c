@@ -97,6 +97,7 @@ void v2_haiku_reader() {
     }
 }
 
+static pthread_t writer_thread, reader_thread;
 
 void *writer_thread_function(void *arg){
     printf("[WRITER] Writer thread is up!\n");

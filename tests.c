@@ -10,6 +10,8 @@
 
 #include <CUnit/Basic.h>
 
+static pthread_t writer_thread, reader_thread;
+
 bool compare_haikus(haiku h1, haiku h2)
 {
     if (strcmp(h1.author, h2.author))

@@ -145,5 +145,18 @@ It uses `msgrcv()` with `IPC_NOWAIT` flag. This make `msgrcv()` return immediate
 queue is full or empty. But if the queue is empty, it returns -1 and `errno` is set to `ENOMSG`.
 That's how we detect if queue is empty and needs refilling.
 
+## Version 3
+Version 3 is amalgamation of version 1 and version 2. Here we have simple client:
+client sending signals to server. And compound server: server runs 3 treads: reader,
+writer and main thread. Main thread gets signal from the client and passes it to 
+the reader thread. Reader thread tries reading a haiku from a queue and display
+it to the user. If it fails, it sends a signal to writer thread, to refill the queue,
+then it sends a signal to reader thread again, for it to read from refilled queue.
+Server also react to `SIGCHLD`. This signal signals server to terminate. Same signal
+is passed to reader and writer thread, also terminating them.  
+Same mechanism of different execution modes from version 1 is available in version 3.
+
+## Tests
+
 
 

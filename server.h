@@ -3,7 +3,6 @@
 
 #include <pthread.h>
 
-pthread_t writer_thread, reader_thread;
 
 void server_v1();
 void v2_haiku_writer();
