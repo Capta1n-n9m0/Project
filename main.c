@@ -30,13 +30,13 @@ void v1(){
     }
 }
 
-// function that turns server v2 into appropriate form for threads
+// function that turns writer v2 into appropriate form for threads
 void *v2_writer_wrapper(void *arg){
     v2_haiku_writer();
     pthread_exit(NULL);
 }
 
-// function that turns client v2 into appropriate form for threads
+// function that turns reader v2 into appropriate form for threads
 void *v2_reader_wrapper(void *arg){
     v2_haiku_reader();
     pthread_exit(NULL);

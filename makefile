@@ -10,6 +10,15 @@ OBJECTS 	=$(SOURCES:.c=.o)
 all: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
 
+version_1: standalone_build
+	./server 1 & ./client 1
+
+version_2: $(EXECUTABLE)
+	./$(EXECUTABLE) 2
+
+version_3: standalone_build
+	./server 3 & ./client 3
+
 standalone: standalone_build
 	./server $(ARGS) & ./client $(ARGS)
 

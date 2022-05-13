@@ -12,10 +12,25 @@ and interfaces by building an application that utilises them. Application consis
 separate parts: client and a server. Server will perform an action: display a haiku the
 user. Server is activated by request from a client: signal. We have 3 versions that show different OS tools.
 
+## Execution 
+To execute our haiku project you can use `make` system. To run each version we have created
+convenient rules. For version 1 and version 3 default is two executables build.
+```shell
+make version_1
+```
+```shell
+make version_2
+```
+```shell
+make version_3
+```
+
 ## Version 1
 Version 1 of our haiku application will work with signals. There should be two processes:
-client and a server. Client sends one of two signals to a server: SIGINT of SIGKILL, which
-correspond to the japanese or the western haiku. Server, depending on a signal, will print
+client and a server. Client sends one of two controlling signals to a server: SIGINT of SIGKILL,
+which correspond to the japanese or the western haiku, and SIGCHLD that signals stop of
+execution. Client version 1 will just send 100 random signals: SIGINT or SIGQUIT and SIGCHLD
+after that to signal termination. Server, depending on a signal, will print
 corresponding haiku. To communicate, client needs to know process id of a server, for this
 problem, our team has proposed two solutions, which resulted in two execution modes.
 1. As single executable
@@ -96,4 +111,39 @@ struct book_ read_book(const char *filename);
 ```
 For each category, there is a corresponding file, that stores haiku of that category.
 Filenames are hardcoded into the list, that `read_category()` uses and passes to `read_book()`.
+
+## Version 2
+Version 2 required creating methods of writing and reading haiku to the message queue and
+using them in reader and writer threads. Both reader and writer will be parts of server in
+the future. Here writer thread will send 3 haiku of each type to message queue and reader 
+thread will read 3 haiku of each type. We have grouped all queue interactions to queue.h
+header file.
+
+### queue.h
+In this header we defined all means and method of interaction with message queue. Message
+queue accepts data in special format: structure, that has the first element of type `long`
+and the payload. In our case payload is single haiku. 
+```c
+struct haiku_msg{
+    long type;
+    struct haiku_ package;
+};
+```
+Then 3 controlling and 2 interacting function were defined:
+```c
+// control
+int create_queue();
+int access_queue();
+int remove_queue(int id);
+// interactions
+int write_haiku(category c, haiku *h);
+int read_haiku(category c, haiku *h);
+```
+Create and access function are nothing special, they just use `ftok()` on working directory
+and 2 as project id to get unique queue id. Interesting part is `read_haiku()` function.
+It uses `msgrcv()` with `IPC_NOWAIT` flag. This make `msgrcv()` return immediately, whether
+queue is full or empty. But if the queue is empty, it returns -1 and `errno` is set to `ENOMSG`.
+That's how we detect if queue is empty and needs refilling.
+
+
 
