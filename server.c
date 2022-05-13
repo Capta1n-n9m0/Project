@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <assert.h>
+#include <pthread.h>
 
 book w, j;
 bool run_condition = true;
@@ -39,7 +40,7 @@ void sigquit_v1(int sig){
 }
 void sigint_v1(int sig){
     signal(SIGINT, sigquit_v1);
-    print_haiku(select_random(w));
+    print_haiku(select_random(j));
 }
 void sigchld_v1(int sig){
     run_condition = false;
@@ -94,39 +95,95 @@ void v2_haiku_reader() {
     }
 }
 
+pthread_t writer_thread, reader_thread;
+
+void *writer_thread_function(void *arg){
+    printf("[WRITER] Writer thread is up!\n");
+    haiku h;
+    bool thread_run_condition = true;
+    sigset_t set;
+    int sig;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGQUIT);
+    sigaddset(&set, SIGCHLD);
+    while (thread_run_condition){
+        sigwait(&set, &sig);
+        switch (sig) {
+            case SIGINT:
+                printf("[WRITER] SIGINT! Refilling japanese queue with 3 haiku!\n");
+                for(int i = 0; i < 3; i++){
+                    h = select_random(j);
+                    write_haiku(japanese, &h);
+                }
+                pthread_kill(reader_thread, SIGINT);
+                break;
+            case SIGQUIT:
+                printf("[WRITER] SIGQUIT! Refilling western queue with 3 haiku!\n");
+                for(int i = 0; i < 3; i++){
+                    h = select_random(w);
+                    write_haiku(western, &h);
+                }
+                pthread_kill(reader_thread, SIGQUIT);
+                break;
+            case SIGCHLD:
+                printf("[WRITER] SIGCHLD! Quiting!\n");
+                thread_run_condition = false;
+                break;
+        }
+    }
+    printf("[WRITER] Writer is terminating!\n");
+    return NULL;
+}
+
+void *reader_thread_function(void *arg){
+    printf("[READER] READER thread is up!\n");
+    haiku h;
+    bool thread_run_condition = true;
+    sigset_t set;
+    int sig;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGQUIT);
+    sigaddset(&set, SIGCHLD);
+    while (thread_run_condition){
+        sigwait(&set, &sig);
+        switch (sig) {
+            case SIGINT:
+                printf("[READER] SIGINT! Reading japanese haiku!\n");
+                if(read_haiku(japanese, &h) == -1){
+                    if(errno != ENOMSG) error("read_haiku");
+                    pthread_kill(writer_thread, SIGINT);
+                } else print_haiku(h);
+                break;
+            case SIGQUIT:
+                printf("[READER] SIGQUIT! Reading western haiku!\n");
+                if(read_haiku(western, &h) == -1){
+                    if(errno != ENOMSG) error("read_haiku");
+                    pthread_kill(writer_thread, SIGQUIT);
+                } else print_haiku(h);
+                break;
+            case SIGCHLD:
+                printf("[READER] SIGCHLD! Quiting! \n");
+                thread_run_condition = false;
+                break;
+        }
+    }
+    printf("[READER] READER is terminating!\n");
+    return NULL;
+
+}
+
 void sigquit_v3(int sig){
-    haiku h;
-    if(read_haiku(western, &h) == -1){
-        if(errno != ENOMSG) error("read_haiku");
-        raise(SIGUSR1);
-    } else print_haiku(h);
+    pthread_kill(reader_thread, SIGQUIT);
 }
-
-void sigusr1_v3(int sig){
-    haiku h;
-    for (int i = 0; i < 3; i++) {
-        h = select_random(w);
-        if (write_haiku(western, &h) == -1) error("write_haiku");
-    }
-    raise(SIGQUIT);
-}
-
 void sigint_v3(int sig){
-    haiku h;
-    if(read_haiku(japanese, &h) == -1){
-        if(errno != ENOMSG) error("read_haiku");
-        raise(SIGUSR2);
-    } else print_haiku(h);
-
+    pthread_kill(reader_thread, SIGINT);
 }
-
-void sigusr2_v3(int sig){
-    haiku h;
-    for (int i = 0; i < 3; i++) {
-        h = select_random(j);
-        if (write_haiku(japanese, &h) == -1) error("write_haiku");
-    }
-    raise(SIGINT);
+void sigchld_v3(int sig){
+    pthread_kill(reader_thread, SIGCHLD);
+    pthread_kill(writer_thread, SIGCHLD);
+    run_condition = false;
 }
 
 void server_v3(){
@@ -135,13 +192,15 @@ void server_v3(){
     int id = create_queue();
     signal(SIGINT, sigint_v3);
     signal(SIGQUIT, sigquit_v3);
-    signal(SIGUSR1, sigusr1_v3);
-    signal(SIGUSR2, sigusr2_v3);
-    signal(SIGCHLD, sigchld_v1);
+    signal(SIGCHLD, sigchld_v3);
+    pthread_create(&writer_thread, NULL, writer_thread_function, NULL);
+    pthread_create(&reader_thread, NULL, reader_thread_function, NULL);
     while (run_condition){
         pause();
     }
     printf("[SERVER] Server is terminating.\n");
+    pthread_join(writer_thread, NULL);
+    pthread_join(reader_thread, NULL);
     remove_queue(id);
     clear_books();
 }
