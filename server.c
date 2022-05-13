@@ -12,27 +12,30 @@
 #include <assert.h>
 #include <pthread.h>
 
-book w, j;
+book w = {0}, j = {0};
 bool run_condition = true;
 
 #ifdef STANDALONE
 #define s_main main
 #endif
 
-static void error(const char *msg){
-    perror(msg);
-    exit(2);
-}
-
 void init_books(){
     j = read_book(japanese);
     w = read_book(western);
 }
 void clear_books(){
-    free_book(&w);
-    free_book(&j);
+    if(w.size)free_book(&w);
+    if(j.size)free_book(&j);
 }
 
+static void error(const char *msg){
+    // cleanup function
+    perror(msg);
+    clear_books();
+    int id;
+    if((id = access_queue()) != -1) remove_queue(id);
+    exit(2);
+}
 
 void sigquit_v1(int sig){
     signal(SIGQUIT, sigquit_v1);
@@ -103,28 +106,28 @@ void *writer_thread_function(void *arg){
     bool thread_run_condition = true;
     sigset_t set;
     int sig;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigaddset(&set, SIGQUIT);
-    sigaddset(&set, SIGCHLD);
+    if(sigemptyset(&set) == -1) error("sigemptyset");
+    if(sigaddset(&set, SIGINT) == -1) error("sigaddset");
+    if(sigaddset(&set, SIGQUIT) == -1) error("sigaddset");
+    if(sigaddset(&set, SIGCHLD) == -1) error("sigaddset");
     while (thread_run_condition){
-        sigwait(&set, &sig);
+        if (sigwait(&set, &sig) == -1) error("sigwait");
         switch (sig) {
             case SIGINT:
                 printf("[WRITER] SIGINT! Refilling japanese queue with 3 haiku!\n");
                 for(int i = 0; i < 3; i++){
                     h = select_random(j);
-                    write_haiku(japanese, &h);
+                    if(write_haiku(japanese, &h) == -1) error("write_haiku");
                 }
-                pthread_kill(reader_thread, SIGINT);
+                if(pthread_kill(reader_thread, SIGINT) != 0) error("pthread_kill");
                 break;
             case SIGQUIT:
                 printf("[WRITER] SIGQUIT! Refilling western queue with 3 haiku!\n");
                 for(int i = 0; i < 3; i++){
                     h = select_random(w);
-                    write_haiku(western, &h);
+                    if(write_haiku(western, &h) == -1) error("write_haiku");
                 }
-                pthread_kill(reader_thread, SIGQUIT);
+                if(pthread_kill(reader_thread, SIGQUIT) != 0) error("pthread_kill");
                 break;
             case SIGCHLD:
                 printf("[WRITER] SIGCHLD! Quiting!\n");
@@ -142,12 +145,12 @@ void *reader_thread_function(void *arg){
     bool thread_run_condition = true;
     sigset_t set;
     int sig;
-    sigemptyset(&set);
-    sigaddset(&set, SIGINT);
-    sigaddset(&set, SIGQUIT);
-    sigaddset(&set, SIGCHLD);
+    if(sigemptyset(&set) == -1) error("sigemptyset");
+    if(sigaddset(&set, SIGINT) == -1) error("sigaddset");
+    if(sigaddset(&set, SIGQUIT) == -1) error("sigaddset");
+    if(sigaddset(&set, SIGCHLD) == -1) error("sigaddset");
     while (thread_run_condition){
-        sigwait(&set, &sig);
+        if (sigwait(&set, &sig) == -1) error("sigwait");
         switch (sig) {
             case SIGINT:
                 printf("[READER] SIGINT! Reading japanese haiku!\n");
@@ -189,18 +192,19 @@ void sigchld_v3(int sig){
 void server_v3(){
     puts("[SERVER] Server V3 is up!");
     init_books();
-    int id = create_queue();
-    signal(SIGINT, sigint_v3);
-    signal(SIGQUIT, sigquit_v3);
-    signal(SIGCHLD, sigchld_v3);
-    pthread_create(&writer_thread, NULL, writer_thread_function, NULL);
-    pthread_create(&reader_thread, NULL, reader_thread_function, NULL);
+    int id;
+    if((id = create_queue()) == -1) error("create_queue");
+    if(signal(SIGINT, sigint_v3) == SIG_ERR) error("signal");
+    if(signal(SIGQUIT, sigquit_v3) == SIG_ERR) error("signal");
+    if(signal(SIGCHLD, sigchld_v3) == SIG_ERR) error("signal");
+    if(pthread_create(&writer_thread, NULL, writer_thread_function, NULL) != 0) error("pthread_create");
+    if(pthread_create(&reader_thread, NULL, reader_thread_function, NULL) != 0) error("pthread_create");
     while (run_condition){
         pause();
     }
     printf("[SERVER] Server is terminating.\n");
-    pthread_join(writer_thread, NULL);
-    pthread_join(reader_thread, NULL);
+    if(pthread_join(writer_thread, NULL) != 0) error("pthread_join");
+    if(pthread_join(reader_thread, NULL) != 0) error("pthread_join");
     remove_queue(id);
     clear_books();
 }
