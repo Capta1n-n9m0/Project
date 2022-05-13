@@ -10,7 +10,6 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <assert.h>
-#include <pthread.h>
 
 book w = {0}, j = {0};
 bool run_condition = true;
@@ -98,7 +97,6 @@ void v2_haiku_reader() {
     }
 }
 
-pthread_t writer_thread, reader_thread;
 
 void *writer_thread_function(void *arg){
     printf("[WRITER] Writer thread is up!\n");

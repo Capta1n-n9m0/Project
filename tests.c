@@ -1,6 +1,8 @@
 #define _GNU_SOURCE
 #include "queue.h"
 #include "haiku.h"
+#include "server.h"
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -49,6 +51,27 @@ int init_suite1(void)
     {
         return 0;
     }
+}
+
+int init_suite_for_threads(void)
+{
+    return 1;
+}
+
+void test_threads(void){
+
+
+    // check the creation of two threads for writer and reader threads
+    CU_ASSERT(pthread_create(&writer_thread, NULL, writer_thread_function, NULL) != 0);
+    CU_ASSERT(pthread_create(&reader_thread, NULL, reader_thread_function, NULL) != 0);
+
+    CU_ASSERT(pthread_join(writer_thread, NULL) != 0);
+    CU_ASSERT(pthread_join(reader_thread, NULL) != 0);
+}
+
+int clean_suite_for_threads(void)
+{
+    return 1;
 }
 
 /* The suite cleanup function.
@@ -138,12 +161,16 @@ int main()
 
     CU_pSuite pSuite = NULL;
 
+    CU_pSuite threads_Suite = NULL;
+
     /* initialize the CUnit test registry */
     if (CUE_SUCCESS != CU_initialize_registry())
         return CU_get_error();
 
     /* add a suite to the registry */
     pSuite = CU_add_suite("Suite_1", init_suite1, clean_suite1);
+    threads_Suite = CU_add_suite("Suite_for_checking_threads", init_suite_for_threads, clean_suite_for_threads);
+
     if (NULL == pSuite)
     {
         CU_cleanup_registry();
@@ -153,7 +180,8 @@ int main()
     /* add the tests to the suite */
     if (NULL == CU_add_test(pSuite, "test of testGetline", testGetline) ||
         NULL == CU_add_test(pSuite, "testing msg queue functions", testMsgQueue) ||
-        NULL == CU_add_test(pSuite, "testing read_book function", testReadBook))
+        NULL == CU_add_test(pSuite, "testing read_book function", testReadBook) ||
+        NULL == CU_add_test(threads_Suite, "testing reader and writer threads", test_threads) )
     {
         CU_cleanup_registry();
         return CU_get_error();
