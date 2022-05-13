@@ -12,7 +12,7 @@ and interfaces by building an application that utilises them. Application consis
 separate parts: client and a server. Server will perform an action: display a haiku the
 user. Server is activated by request from a client: signal. We have 3 versions that show different OS tools.
 
-### Version 1
+## Version 1
 Version 1 of our haiku application will work with signals. There should be two processes:
 client and a server. Client sends one of two signals to a server: SIGINT of SIGKILL, which
 correspond to the japanese or the western haiku. Server, depending on a signal, will print
@@ -60,3 +60,36 @@ client: client.c client.c queue.h queue.c haiku.h haiku.c
 ```
 We compile server and client separately and define macro `STANDALONE` with flag -D to gcc, 
 which enables replacement mechanism of main functions.
+
+### haiku.h
+To represent haiku in our program, we decided to create a special structure for it.
+```c
+typedef struct haiku_{
+    char author[64];
+    char lines[3][64];
+} haiku;
+```
+Haiku basically is a short, 3-line poem, written by some author. That's what `struct haiku_`
+represents: author string and 3 strings for each line. We decided to go with strings of 
+moderate size, as static arrays. 63 chars + \0 char is enough for any haiku and author we 
+are working with.  
+At the same time, we have two distinct groups of haiku: japanese and western. It is 
+convenient to name these groups and represent them in our program. For that we have created
+category enumeration and book structure
+```c
+typedef struct book_{
+    int size;
+    haiku *poems;
+}book;
+
+typedef enum category_{
+    japanese,
+    western
+} category;
+```
+`struct book_` is a simple dynamic array. It stores number of haiku in it and pointer to the
+start of array of haiku. Book can be read from a file using `read_book()` function:
+```c
+struct book_ read_book(enum category_ c);
+```
+It takes filename for corresponding category from hardcoded list.
