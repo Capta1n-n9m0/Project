@@ -1,4 +1,5 @@
-# Operating Systems Architecture - Haiku project
+# Operating Systems Architecture
+# Haiku project
 This is the project for Operating Systems Architecture course of:  
 * Abbas Aliyev
 * Aziz Salimli
