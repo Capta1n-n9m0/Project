@@ -2,7 +2,7 @@ ARGS		=3
 EXECUTABLE 	=haiku
 CC 			=gcc
 CFLAGS 		=-Wall -Werror --pedantic -std=c11 -g
-LDFLAGS 	=-lm -lpthread -pthread -lcunit -lncurses
+LDFLAGS 	=-lm -lpthread -pthread -lcunit
 SOURCES 	=main.c server.c client.c haiku.c queue.c
 HEADERS 	=server.h client.h haiku.h queue.h
 OBJECTS 	=$(SOURCES:.c=.o)

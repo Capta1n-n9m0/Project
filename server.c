@@ -19,8 +19,8 @@ bool run_condition = true;
 #endif
 
 void init_books(){
-    j = read_book(japanese);
-    w = read_book(western);
+    j = read_category(japanese);
+    w = read_category(western);
 }
 void clear_books(){
     if(w.size)free_book(&w);
@@ -208,7 +208,10 @@ void server_v3(){
 }
 
 int s_main(int argc, char **argv){
-    assert(argc > 1);
+    if(argc <= 1){
+        fprintf(stderr, "Please provide version number, 1 or 3, as first argument: ./server 1\n");
+        exit(1);
+    }
     key_t k = ftok("/dev/null", '1');
     if(k == -1) error("ftok");
     int id = shmget(k,  sizeof(pid_t), 0644 | IPC_CREAT);

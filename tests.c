@@ -130,7 +130,7 @@ void testReadBook(void)
 
     book test_haiku_book = {6, six_haikus};
 
-    CU_ASSERT_TRUE(compare_books(read_book(japanese), test_haiku_book));
+    CU_ASSERT_TRUE(compare_books(read_category(japanese), test_haiku_book));
 }
 
 void test()
@@ -148,7 +148,7 @@ void test()
         {"line1",
          "line2",
          "line3"}};
-    book actuall = read_book(japanese);
+    book actuall = read_category(japanese);
     compare_books(b, actuall);
 }
 
@@ -180,7 +180,7 @@ int main()
     /* add the tests to the suite */
     if (NULL == CU_add_test(pSuite, "test of testGetline", testGetline) ||
         NULL == CU_add_test(pSuite, "testing msg queue functions", testMsgQueue) ||
-        NULL == CU_add_test(pSuite, "testing read_book function", testReadBook) ||
+        NULL == CU_add_test(pSuite, "testing read_category function", testReadBook) ||
         NULL == CU_add_test(threads_Suite, "testing reader and writer threads", test_threads) )
     {
         CU_cleanup_registry();

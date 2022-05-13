@@ -27,7 +27,8 @@ typedef struct file_category_{
 } file_category;
 
 // return the book of a haiku formed from file. filenames are hardcoded using array of file_category structure
-book read_book(category c);
+book read_category(category c);
+book read_book(const char *filename);
 haiku select_random(book b);
 void print_haiku(haiku h);
 void free_book(book *b);

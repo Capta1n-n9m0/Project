@@ -88,8 +88,12 @@ typedef enum category_{
 } category;
 ```
 `struct book_` is a simple dynamic array. It stores number of haiku in it and pointer to the
-start of array of haiku. Book can be read from a file using `read_book()` function:
+start of array of haiku. Book can be read from a file using `read_category()` or `read_book()`
+function:
 ```c
-struct book_ read_book(enum category_ c);
+struct book_ read_category(enum category_ c);
+struct book_ read_book(const char *filename);
 ```
-It takes filename for corresponding category from hardcoded list.
+For each category, there is a corresponding file, that stores haiku of that category.
+Filenames are hardcoded into the list, that `read_category()` uses and passes to `read_book()`.
+

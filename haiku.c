@@ -12,9 +12,7 @@ file_category haiku_files[] = {
 };
 
 // function that would read
-book read_book(category c){
-    char *filename;
-    filename = haiku_files[c].file;
+book read_book(const char *filename){
     book res = {0};
     char *line = NULL;
     size_t len = 0;
@@ -53,6 +51,11 @@ book read_book(category c){
     if (line)
         free(line);
     return res;
+}
+book read_category(category c){
+    char *filename;
+    filename = haiku_files[c].file;
+    return read_book(filename);
 }
 
 haiku select_random(book b){

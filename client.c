@@ -74,6 +74,10 @@ void client_v3(pid_t t){
 }
 
 int c_main(int argc, char **argv){
+    if(argc <= 1){
+        fprintf(stderr, "Please provide version number, 1 or 3, as first argument: ./client 1\n");
+        exit(1);
+    }
     //access shared memory
     key_t k = ftok("/dev/null", '1');
     if(k == -1) error("ftok");
