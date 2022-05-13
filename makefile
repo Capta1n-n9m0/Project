@@ -10,8 +10,10 @@ OBJECTS 	=$(SOURCES:.c=.o)
 all: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
 
-standalone: server client
+standalone: standalone_build
 	./server $(ARGS) & ./client $(ARGS)
+
+standalone_build: server client
 
 server: server.h server.c queue.h queue.c haiku.h haiku.c
 	$(CC) $(CFLAGS) -DSTANDALONE server.c queue.c haiku.c -o server $(LDFLAGS)
